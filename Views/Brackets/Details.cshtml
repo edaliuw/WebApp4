@@ -1,0 +1,44 @@
+﻿@model tourneybracket.Models.Bracket
+
+@{
+    ViewData["Title"] = "Details";
+    int roundtotal = Convert.ToInt32(Model.TotalRounds);
+    int total = (int)Math.Pow(2, roundtotal);
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Bracket</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BracketName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BracketName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CreatedAt)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CreatedAt)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.TotalRounds)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.TotalRounds)
+        </dd>
+        <dt class = "col-sm-2">
+            Total Teams:
+        </dt>
+        <dd class = "col-sm-10">
+           @total
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
