@@ -2,6 +2,17 @@
 
 @{
     ViewData["Title"] = "Details";
+    int teamAScore = (int)Model.TeamAScore;
+    int teamBScore = (int)Model.TeamBScore;
+    int id = (int)Model.BracketID;
+    string TeamA = Model.TeamA.TeamName;
+    string TeamB = Model.TeamB.TeamName;
+    string tournamentchampionship = "";
+    if(teamAScore > teamBScore){
+        tournamentchampionship = TeamA;
+    }else{
+        tournamentchampionship = TeamB;
+    }
 }
 
 <h1>Details</h1>
@@ -17,34 +28,34 @@
             @Html.DisplayFor(model => model.MatchNumber)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TeamA)
+            Higher Seed
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.TeamA.TeamName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TeamB)
+            Lower Seed
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.TeamB.TeamName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TeamAScore)
+           Higher Seed Games Won  
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.TeamAScore)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TeamBScore)
+            Lower Seed Games Won 
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.TeamBScore)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.WinnerID)
+            Series Winner
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.WinnerID)
+            @tournamentchampionship
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Bracket)
@@ -62,5 +73,5 @@
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.MatchID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a href="/Brackets/Details/@id/">Back to List</a>
 </div>
