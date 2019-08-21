@@ -20,13 +20,15 @@ namespace tourneybracket.Controllers
         }
 
         // GET: Teams
+        [HttpGet("/Brackets/{bracketID}/Teams/")]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Teams.ToListAsync());
         }
 
         // GET: Teams/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [HttpGet("/Brackets/{bracketID}/Teams/{id}")]
+        public async Task<IActionResult> Details(int? id, int? bracketID)
         {
             if (id == null)
             {
@@ -34,6 +36,7 @@ namespace tourneybracket.Controllers
             }
 
             var team = await _context.Teams
+                .Where(m => m.BracketID == bracketID)
                 .FirstOrDefaultAsync(m => m.id == id);
             if (team == null)
             {
@@ -66,14 +69,21 @@ namespace tourneybracket.Controllers
         }
 
         // GET: Teams/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [HttpGet("/Brackets/{bracketID}/Teams/Edit/{id}/")]
+        public async Task<IActionResult> Edit(int? id, int? bracketID)
         {
             if (id == null)
             {
                 return NotFound();
             }
+            if (bracketID == null)
+            {
+                return NotFound();
+            }
 
-            var team = await _context.Teams.FindAsync(id);
+            var team = await _context.Teams
+            .Where(m => m.BracketID == bracketID)
+            .FirstOrDefaultAsync(m => m.id == id);
             if (team == null)
             {
                 return NotFound();
@@ -84,9 +94,9 @@ namespace tourneybracket.Controllers
         // POST: Teams/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("/Brackets/{bracketID}/Teams/Edit/{id}/")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,TeamName,BracketID")] Team team)
+        public async Task<IActionResult> Edit(int id, int? bracketID, [Bind("id,TeamName,BracketID")] Team team)
         {
             if (id != team.id)
             {
@@ -111,7 +121,7 @@ namespace tourneybracket.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Brackets", new { id = team.BracketID });
             }
             return View(team);
         }

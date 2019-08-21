@@ -4,22 +4,22 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Brackets</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div class="Suite">
+    <a asp-action="Create" class="Suite">New Tournament</a>
+</div>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.BracketName)
+               Bracket Name
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
+                Created On
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TotalRounds)
+                Total Rounds
             </th>
             <th></th>
         </tr>
@@ -31,7 +31,9 @@
                 @Html.DisplayFor(modelItem => item.BracketName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
+                @item.CreatedAt.ToString("MM/dd/yyyy hh:mm tt")
+
+
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TotalRounds)

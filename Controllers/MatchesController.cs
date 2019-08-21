@@ -21,14 +21,20 @@ namespace tourneybracket.Controllers
         }
 
         // GET: Matches
-        public async Task<IActionResult> Index()
+        [HttpGet("/Brackets/{bracketID}/Matches/")]
+        public async Task<IActionResult> Index(int? bracketID)
         {
-            var bracketContext = _context.Matches.Include(m => m.Bracket).Include(m => m.TeamA).Include(m => m.TeamB);
+            if (bracketID == null)
+            {
+                return NotFound();
+            }
+            var bracketContext = _context.Matches.Include(m => m.Bracket).Include(m => m.TeamA).Include(m => m.TeamB).Where(m => m.BracketID == bracketID);
             return View(await bracketContext.ToListAsync());
         }
 
         // GET: Matches/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [HttpGet("/Brackets/{bracketID}/Matches/Details/{id}/")]
+        public async Task<IActionResult> Details(int? id, int? bracketID)
         {
             if (id == null)
             {
@@ -39,6 +45,7 @@ namespace tourneybracket.Controllers
                 .Include(m => m.Bracket)
                 .Include(m => m.TeamA)
                 .Include(m => m.TeamB)
+                .Where(m => m.BracketID == bracketID)
                 .FirstOrDefaultAsync(m => m.MatchID == id);
             if (match == null)
             {
@@ -77,14 +84,20 @@ namespace tourneybracket.Controllers
         }
 
         // GET: Matches/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [HttpGet("/Brackets/{bracketID}/Matches/Edit/{id}/")]
+        public async Task<IActionResult> Edit(int? id, int? bracketID)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var match = await _context.Matches.FindAsync(id);
+            var match = await _context.Matches
+                .Include(m => m.Bracket)
+                .Include(m => m.TeamA)
+                .Include(m => m.TeamB)
+                .Where(m => m.BracketID == bracketID)
+                .FirstOrDefaultAsync(m => m.MatchID == id);
             if (match == null)
             {
                 return NotFound();
@@ -98,7 +111,7 @@ namespace tourneybracket.Controllers
         // POST: Matches/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("/Brackets/{bracketID}/Matches/Edit/{id}/")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MatchID,MatchNumber,TeamAID,TeamBID,TeamAScore,TeamBScore,WinnerID,BracketID,RoundNumber")] Match match)
         {
@@ -140,18 +153,22 @@ namespace tourneybracket.Controllers
                         var RoundNumb = _context.Matches
                             .Select(m => m.RoundNumber)
                             .Last();
+                        var RoundNumbHold = RoundNumb;
                         RoundNumb = RoundNumb + 1;
                         matchNumb = matchNumb + 1;
                         var winnersCircle = _context.Matches.Select(m => new
                         {
                             BracketID = m.BracketID,
-                            WinnerID = m.WinnerID
+                            WinnerID = m.WinnerID,
+                            RoundNumber = m.RoundNumber,
                         })
-                        .Where(m => m.BracketID == bID);
-                        
+                        .Where(m => m.BracketID == bID)
+                        .Where(m => m.RoundNumber == RoundNumbHold);
+                        Debug.WriteLine("Winners' Circle!");
                         foreach (var item in winnersCircle)
                         {
                             winners.Add(Convert.ToInt32(item.WinnerID));
+                            Debug.WriteLine("ID" + item);
                         }
                         if (winners.Count() > 2)
                         {
@@ -200,6 +217,23 @@ namespace tourneybracket.Controllers
                                     _context.SaveChanges();
                                 }
                             }
+                        }else if (winners.Count() > 1)
+                        {
+                            List<Match> matchList = new List<Match>();
+                            winners.Sort();
+                            int WinnerLen = winners.Count();
+                            var matchInitial = new Match()
+                            {
+                                BracketID = bID,
+                                TeamAID = winners[0],
+                                TeamBID = winners[1],
+                                RoundNumber = RoundNumb,
+                                MatchNumber = matchNumb,
+                            };
+                            matchList.Add(matchInitial);
+                            _context.Matches.Add(matchInitial);
+                            _context.SaveChanges();
+
                         }
                     }
 
@@ -215,7 +249,7 @@ namespace tourneybracket.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Brackets", new { id = match.BracketID });
             }
             ViewData["BracketID"] = new SelectList(_context.Brackets, "id", "BracketName", match.BracketID);
             ViewData["TeamAID"] = new SelectList(_context.Teams, "id", "TeamName", match.TeamAID);
@@ -224,6 +258,7 @@ namespace tourneybracket.Controllers
         }
 
         // GET: Matches/Delete/5
+        [HttpGet("/Brackets/{bracketID}/Matches/Delete/{id}/")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

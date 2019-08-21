@@ -39,11 +39,21 @@ namespace tourneybracket.Controllers
 
             var bracket = await _context.Brackets
                 .FirstOrDefaultAsync(m => m.id == id);
+            var matchData = _context.Matches
+                .Include(m => m.Bracket)
+                .Include(m => m.TeamA)
+                .Include(m => m.TeamB)
+                .Where(m => m.BracketID == id);
+            var teamData = _context.Teams
+                .Where(m => m.BracketID == id);
+
+
             if (bracket == null)
             {
                 return NotFound();
             }
-
+            ViewData["TeamData"] = teamData;
+            ViewData["MatchData"] = matchData;
             return View(bracket);
         }
 
